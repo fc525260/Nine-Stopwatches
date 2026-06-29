@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1 - 2026-06-29
+
+- Fixed stopwatch accuracy by measuring real elapsed time with Dart `Stopwatch` instead of adding a fixed 10 ms per timer callback.
+- Added a regression test for real elapsed-time tracking.
+
 ## 1.0.0 - 2026-06-29
 
 - Rebuilt the original PyQt stopwatch prototypes as a Flutter Windows desktop app.
