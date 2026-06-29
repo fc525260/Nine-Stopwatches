@@ -22,7 +22,6 @@ rust/portable_launcher/      Rust 单文件启动器，嵌入 Flutter release bu
 windows/                     Flutter Windows runner 与 CMake 集成
 test/                        Flutter widget 测试
 docs/                        README 截图等公开文档资源
-.github/workflows/           GitHub Actions 发布构建流程
 scripts/                     本地构建脚本
 ```
 
@@ -60,20 +59,6 @@ flutter build windows --release
 4. 在项目根目录生成 `九个秒表.exe`。
 
 生成的 `九个秒表.exe` 是本地构建产物，已被 `.gitignore` 排除，不会上传到 GitHub。
-
-## GitHub Release
-
-`.github/workflows/release.yml` 已配置 Windows release 构建流程：
-
-- 拉取 Flutter 和 Rust 环境。
-- 执行 `flutter analyze`、`flutter test` 和 Rust core 测试。
-- 构建 Flutter Windows release。
-- 生成嵌入式 bundle。
-- 编译单文件启动器。
-- 上传 `NineStopwatches-Windows-x64.exe` 作为 artifact。
-- 当推送 `v*` 标签时，自动创建 GitHub Release 并上传 exe。
-
-当前仓库只做了本地 git 初始化和提交，尚未推送到 GitHub。
 
 ## 许可证
 
