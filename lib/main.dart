@@ -70,7 +70,7 @@ class _StopwatchHomePageState extends State<StopwatchHomePage> {
     var didChange = false;
     for (final stopwatch in _stopwatches) {
       if (stopwatch.isRunning) {
-        stopwatch.elapsedMs = StopwatchCore.add(stopwatch.elapsedMs, 10);
+        stopwatch.syncElapsed();
         didChange = true;
       }
     }
@@ -81,23 +81,21 @@ class _StopwatchHomePageState extends State<StopwatchHomePage> {
 
   void _start(StopwatchModel stopwatch) {
     setState(() {
-      stopwatch.isRunning = true;
+      stopwatch.start();
       _statusMessage = '${stopwatch.label} 已开始';
     });
   }
 
   void _pause(StopwatchModel stopwatch) {
     setState(() {
-      stopwatch.isRunning = false;
+      stopwatch.pause();
       _statusMessage = '${stopwatch.label} 已暂停';
     });
   }
 
   void _reset(StopwatchModel stopwatch) {
     setState(() {
-      stopwatch
-        ..elapsedMs = 0
-        ..isRunning = false;
+      stopwatch.reset();
       _statusMessage = '${stopwatch.label} 已重置';
     });
   }
@@ -105,7 +103,7 @@ class _StopwatchHomePageState extends State<StopwatchHomePage> {
   void _pauseAll() {
     setState(() {
       for (final stopwatch in _stopwatches) {
-        stopwatch.isRunning = false;
+        stopwatch.pause();
       }
       _statusMessage = '所有秒表已暂停';
     });
@@ -114,9 +112,7 @@ class _StopwatchHomePageState extends State<StopwatchHomePage> {
   void _resetAll() {
     setState(() {
       for (final stopwatch in _stopwatches) {
-        stopwatch
-          ..elapsedMs = 0
-          ..isRunning = false;
+        stopwatch.reset();
       }
       _statusMessage = '所有秒表已重置';
     });
@@ -701,7 +697,32 @@ class StopwatchModel {
 
   final String label;
   int elapsedMs = 0;
-  bool isRunning = false;
+  final Stopwatch _clock = Stopwatch();
+
+  bool get isRunning => _clock.isRunning;
+
+  void start() {
+    if (!_clock.isRunning) {
+      _clock.start();
+    }
+    syncElapsed();
+  }
+
+  void pause() {
+    syncElapsed();
+    _clock.stop();
+  }
+
+  void reset() {
+    _clock
+      ..stop()
+      ..reset();
+    elapsedMs = 0;
+  }
+
+  void syncElapsed() {
+    elapsedMs = _clock.elapsedMilliseconds;
+  }
 }
 
 class FormattedTime {

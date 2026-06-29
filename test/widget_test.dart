@@ -38,6 +38,18 @@ void main() {
     expect(find.text('所有秒表已重置'), findsOneWidget);
   });
 
+  test('stopwatch model follows real elapsed time', () async {
+    final stopwatch = StopwatchModel(label: '测试秒表');
+
+    stopwatch.start();
+    await Future<void>.delayed(const Duration(milliseconds: 120));
+    stopwatch.syncElapsed();
+    stopwatch.pause();
+
+    expect(stopwatch.elapsedMs, greaterThanOrEqualTo(80));
+    expect(stopwatch.elapsedMs, lessThan(500));
+  });
+
   testWidgets('fits all nine stopwatch cards in the first desktop viewport', (
     WidgetTester tester,
   ) async {
