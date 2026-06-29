@@ -1,0 +1,15 @@
+[package]
+name = "nine_stopwatches_portable"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+zip = { version = "2.2.2", default-features = false, features = ["deflate"] }
+
+[build-dependencies]
+embed-resource = "3.0.1"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = "symbols"

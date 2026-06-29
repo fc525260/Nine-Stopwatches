@@ -1,0 +1,72 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    name: Build Windows portable EXE
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Flutter dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Flutter tests
+        run: flutter test
+
+      - name: Rust core tests
+        run: cargo test --manifest-path rust/stopwatch_core/Cargo.toml
+
+      - name: Build Flutter Windows release
+        run: flutter build windows --release
+
+      - name: Create embedded release bundle
+        shell: pwsh
+        run: |
+          Compress-Archive `
+            -Path build/windows/x64/runner/Release/* `
+            -DestinationPath build/windows/x64/runner/nine_stopwatches_bundle.zip `
+            -Force
+
+      - name: Build portable launcher
+        run: cargo build --release --manifest-path rust/portable_launcher/Cargo.toml
+
+      - name: Stage artifact
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item rust/portable_launcher/target/release/nine_stopwatches_portable.exe dist/NineStopwatches-Windows-x64.exe
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NineStopwatches-Windows-x64
+          path: dist/NineStopwatches-Windows-x64.exe
+
+      - name: Publish GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/NineStopwatches-Windows-x64.exe
